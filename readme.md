@@ -6,6 +6,8 @@ Here are some notes:
 
 For what its worth, at the moment, I am using an Ubuntu 18.04 host, php 7.1, composer 1.6.5, Apache 2.4.29, and Laravel 5.6.29.
 
+And I have installed the chrome JSON Formatter extension.
+
 ```
 <install composer, php 7.1, with a bunch of php libs>
 $ sudo apt-get install apache2
@@ -53,7 +55,7 @@ php dump-autoload
 The usual database migration commands:
 
 ```
-$ php artisan make:migrate create_tasks_table --create=tasks
+$ php artisan make:migration create_tasks_table --create=tasks
 $ php artisan migrate 
 $ php artisan migrate:refresh
 ```
@@ -82,4 +84,66 @@ Or it can be passed using a with function call ...
 ```
 return view('welcome')->with('tasks', $tasks);
 ```
+
+And here is a simplistic way to view it in a blade:
+
+```
+<body>
+	<ul>
+		@foreach ($tasks as $task)
+			<li>{{ $task }}</li>
+		@endforeach
+	</ul>
+</body>
+```
+
+4) Here is an example of a migration with a foreign key
+
+```
+        Schema::create('tasks', function (Blueprint $table) {
+			$table->increments('id');
+			$table->integer('user_id');
+			$table->text('body');
+			$table->timestamps()->nullable();
+			
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        });
+```
+
+The above was created with this command:
+
+```
+$ php artisan make:migration create_tasks_table --create=tasks
+```
+
+And if we assume there is actual data in the database (I am skipping that part), then the route
+or controller could get the full list of tasks using this query. This is Laravel's query builder.
+
+```
+	$tasks = DB::table('tasks')->get();
+
+	return view('welcome', compact('tasks'));
+```
+
+But since in this case the value returned from the query is a collection of objects, and not just strings, that means I need to adjust the blade code slightly like this:
+
+```
+<body>
+	<ul>
+		@foreach ($tasks as $task)
+			<li>{{ $task->body }}</li>
+		@endforeach
+	</ul>
+</body>
+```
+5) Here is an example of route-model injection, with no need to use the query builder because Laravel found the correct task for me based on the URL
+
+```
+Route::get('/tasks/{task}', function (Task $task) {
+
+	// returns a view in resources/views/tasks/show.blade.php
+	return view('tasks.show', compact('task'));
+});
+```
+
 
