@@ -22,6 +22,14 @@ class PostsController extends Controller
 	}
 
 	public function store(Request $request) {
+		/* If the validation fails, it just redirects 
+		   back to the previous page and it contains a
+		   populate errors session variable */
+		$this->validate(request(), [
+			'title' => 'required|min:2',
+			'body' => 'required'
+		]);
+
 		Post::create([
 			'title' => request('title'),
 			'body' => request('body')

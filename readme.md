@@ -354,11 +354,45 @@ Then run "composer update" at the command line
 $ php artisan make:controller -r
 ``` 
 
-13) 
+13) Passing all request parameters to create is a bad idea. 
 
 Don't do this:
 
 ```
 	Post::create(request()->all());
 ```
+
+Instead, use server side validation like this:
+
+```
+		$this->validate(request(), [
+			'title' => 'required|min:2',
+			'body' => 'required'
+		]);
+```
+
+14) Blade for displaying errors
+
+It can be included like this:
+
+```
+		<div class="form-group">
+			@include ('layouts.errors')
+		</div>
+```
+
+```
+@if (count($errors) > 0)
+	<div class="alert alert-danger">
+		<ul>
+			@foreach ($errors->all() as $error)
+				<li>
+					{{ $error }}
+				</li>
+			@endforeach
+		</ul>
+	</div>
+@endif
+```
+
 And example of a pivot table (relationships between multiple tables)
