@@ -1,6 +1,7 @@
 @extends('layouts.master')
 
 @section('content')
-	<div>This will show a post</div>
-	<p>{{ $post->body }}</p>
+	<div class="col-sm-8 blog-main">
+		@include ('posts.post', ['post' => $post])
+	</div>
 @endsection
