@@ -49,7 +49,7 @@ $ php artisan route:list > route.txt
 If laravel gets confused
 
 ```
-php dump-autoload
+$ composer dump-autoload
 ```
 
 The usual database migration commands:
@@ -63,6 +63,24 @@ $ php artisan migrate:refresh
 A help command
 ```
 $ php artisan make help
+```
+
+Create a model with a migration
+
+```
+$ php artisan make:model Task -
+```
+
+Create a model with a migration and a controller
+
+```
+$ php artisan make:model Task -m -c
+```
+
+Create a model with a migration and a controller, where the controller is resourcful
+
+```
+$ php artisan make:model Task -m -c -r
 ```
 
 3) Data can be passed to a view from a route, or a controller. It is passed using an array, which can be constructed using the php compact API.
@@ -104,7 +122,8 @@ And here is a simplistic way to view it in a blade:
 			$table->increments('id');
 			$table->integer('user_id');
 			$table->text('body');
-			$table->timestamps()->nullable();
+			$table->boolean('completed')->default(false);
+			$table->timestamps();
 			
 			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
@@ -146,4 +165,77 @@ Route::get('/tasks/{task}', function (Task $task) {
 });
 ```
 
+Which is more or less the equivalent of this:
 
+```
+Route::get('/tasks/{id}', function ($id) {
+	$task = DB::table('tasks')->find($id);
+	// or this which uses Eloquent
+	$task = App\Task::find($id);
+	return view('tasks.show', compact('task'));
+});
+```
+
+6) Tinker is a way to expirment with model objects
+
+```
+$ php artisan tinker
+>>> App\User::all()
+=> Illuminate\Database\Eloquent\Collection {#2872
+     all: [],
+   }
+
+>>> App\User::where('id', '>=', 2)->get();
+=> Illuminate\Database\Eloquent\Collection {#2861
+     all: [],
+   }
+
+>>> App\User::pluck('email');
+=> Illuminate\Support\Collection {#2872
+     all: [],
+   }
+
+>>> App\User::pluck('email')->first();
+=> null
+
+>>> $task = new App\Task;
+>>> $task->body = 'Go to the store';
+>>> $task->save();
+
+>>> App\Task::wehre('completed', 1)->get();
+
+```
+
+7) Using Eloquent, we can replace query builder calls with queries using the database like this:
+
+```
+$tasks = App\Task::all();
+$task = App\Task::find($id);
+//etc
+```
+
+And we could add a "query scope to the Task model class:
+
+```
+	/* This is not a query scope and cannot be chained 
+	   This will work: App\Task::incomplete()
+	   But this will not: App\Task::incomplete()->where('id' '>' 2); */
+    public static function incomplete() {
+		return static::where('completed', 0)->get();
+	}
+
+	/* This is a query scope, and we can do this:
+	   App\Task::incomplete()->get(); 
+	   or this
+	   App\Task::incomplete()->where('id' '>' 2)->get(); */
+	public function scopeIncomplete($query, $optionalArg) {
+		return $query->where('completed', 0);
+	}
+```
+
+
+
+
+
+
+And example of a pivot table (relationships between multiple tables)
