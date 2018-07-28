@@ -303,6 +303,7 @@ A top level layout blade might look like this:
 	<title>My Application</title>
 </head>
 <body>
+	@include ('layouts.nav')
 	@yield('content')
 </body>
 	@yield('footer')
@@ -323,5 +324,41 @@ And a client page might use this:
 @endsection
 ```
 
+11) Laravel Forms
 
+To be able to use Laravel Forms, you must first install them
+
+Open composer.json, and add this:
+
+```
+"require": {
+    "laravelcollective/html": "~5.0"
+}
+```
+
+Then run "composer update" at the command line
+
+12) Basic Resourceful controller will implement the following routes and controller methods
+
+```
+	GET /posts
+	GET /posts/create
+	POST /posts
+	GET /posts/{id}/edit
+	GET /posts/{id}
+	PATCH /posts/{id}
+	DELETE /posts/{id}
+```
+
+```
+$ php artisan make:controller -r
+``` 
+
+13) 
+
+Don't do this:
+
+```
+	Post::create(request()->all());
+```
 And example of a pivot table (relationships between multiple tables)
