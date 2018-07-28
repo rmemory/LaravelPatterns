@@ -2,7 +2,7 @@ A project containing a few different Laravel concepts ...
 
 Here are some notes:
 
-1) To create a project, do the following. This assumes the necessary composer, php, Larvel, and apache libraries have been installed. Quite a few details are ommitted here. Google is your friend. Note that I am not using Laravel's valet or homestead. I use Apache to serve the page locally. This is just a general outline of the major steps involved. 
+1) To create a project, do the following. This assumes the necessary composer, php, Larvel, and apache libraries have been installed. Quite a few details are ommitted here. Google is your friend. Note that I am not using Laravel's valet or homestead. I use Apache to serve the page locally. This is just a general outline of the major steps involved. This readme does assume you already have some familiarity with Laravel beforehand. 
 
 For what its worth, at the moment, I am using an Ubuntu 18.04 host, php 7.1, composer 1.6.5, Apache 2.4.29, and Laravel 5.6.29.
 
@@ -233,9 +233,95 @@ And we could add a "query scope to the Task model class:
 	}
 ```
 
+8) Controllers
 
+Controllers are used to provide an intermediary between Models and Views. Based on the request (from the route), it will compile the necessary information from the model, and pass it to the view. Stated differently, the controller fetches whatever data is necessary for the view.
 
+```
+Route::get('/tasks', 'TasksController&index');
+```
 
+By default, they are name spaced to be located in App\Http\Controllers, though you can apply a group to them and middleware to them. Like this:
+
+```
+Route::group(['namespace' => '\View'], function () {
+	/* These are all the auth protected web routes */
+	Route::group(['middleware' => 'auth'], function () {
+		Route::get('/tasks', 'TasksController&index');
+```
+
+See the app/Http/Kernel.php file to see what "auth" applies. There are other kinds of middleware.
+
+Here is an example of the TasksController index and show function
+
+```
+class TasksController extends Controller
+{
+	public function index() {
+		$tasks = Task::all();
+		 return view('tasks.index', compact('tasks'));
+	}
+
+	public function show($id) {
+		$task = Task::find($id);
+		return view('tasks.show', compact('task'));
+	}
+}
+```
+
+Here is a way to create model, controller, and migration in a single command:
+
+```
+$ php artisan make:model Post -mc
+Model created successfully.
+Created Migration: 2018_07_28_024359_create_posts_table
+Controller created successfully.
+
+```
+
+9) Route model binding
+
+```
+Route::get('/tasks/{task}', 'TasksController&show');
+```
+
+```
+	public function show(Task $task) {
+		//$task = Task::find($id);
+		return view('tasks.show', compact('task'));
+	}
+```
+
+10) Blade files
+
+A top level layout blade might look like this:
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+	<title>My Application</title>
+</head>
+<body>
+	@yield('content')
+</body>
+	@yield('footer')
+</html>
+```
+
+And a client page might use this:
+
+```
+@extends('layout')
+
+@section('content')
+<div>blah blah</div>
+@endsection
+
+@section('footer')
+<script src="myscript.js"></script>
+@endsection
+```
 
 
 And example of a pivot table (relationships between multiple tables)
