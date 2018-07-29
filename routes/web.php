@@ -1,11 +1,14 @@
 <?php
 
-Route::get('/', 'PostsController@index');
-Route::get('/posts/create', 'PostsController@create');
-Route::get('/posts/{post}', 'PostsController@show');
-Route::post('/posts/{post}/comments', 'CommentsController@store');
+Auth::routes();
 
-Route::post('/posts', 'PostsController@store');
+Route::get('/', 'PostsController@index')->name('home');
+Route::group(['middleware' => 'auth'], function () {
+	Route::get('/posts/create', 'PostsController@create');
+	Route::get('/posts/{post}', 'PostsController@show');
+	Route::post('/posts/{post}/comments', 'CommentsController@store');
+	Route::post('/posts', 'PostsController@store');
+});
 
 /*
 	GET /posts
@@ -16,3 +19,5 @@ Route::post('/posts', 'PostsController@store');
 	PATCH /posts/{id}
 	DELETE /posts/{id}
  */
+
+
