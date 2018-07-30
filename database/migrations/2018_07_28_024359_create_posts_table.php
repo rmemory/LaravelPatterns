@@ -15,10 +15,15 @@ class CreatePostsTable extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
 			$table->increments('id');
+			$table->integer('user_id')->unsigned();
 			$table->string('title');
 			$table->text('body');
             $table->timestamps();
-        });
+		});
+		
+		Schema::table('posts', function($table) {
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+		});
     }
 
     /**
@@ -28,6 +33,7 @@ class CreatePostsTable extends Migration
      */
     public function down()
     {
+		DB::statement("SET foreign_key_checks=0");
         Schema::dropIfExists('posts');
     }
 }

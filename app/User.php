@@ -5,6 +5,9 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+use App\Post;
+use App\Comment;
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -25,5 +28,22 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password', 'remember_token',
-    ];
+	];
+	
+	public function posts() {
+		return $this->hasMany(Post::class);
+	}
+
+	public function comments() {
+		return $this->hasMany(Comment::class);
+	}
+
+	public function publish(Post $post) {
+		// This will automatcially set the user_id
+		$this->posts()->save($post);
+	}
+
+	public function publishComment(Comment $comment) {
+		$this->comments()->save($comment);
+	}
 }

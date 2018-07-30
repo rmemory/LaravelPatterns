@@ -395,4 +395,35 @@ It can be included like this:
 @endif
 ```
 
+15) To put your website into maintence mode, you can run this:
+
+```
+php artisan down
+```
+
+To bring it back up ...
+
+```
+php artisan up
+```
+
+16) To apply middleware, you can do so in a controller contstructor like this:
+
+```
+public function __construct() {
+	$this->middleware('auth', ['only' => 'index']);
+}
+```
+
+Or alternatively it can be applied to a group of routes like this:
+
+```
+Route::group(['middleware' => 'auth'], function () {
+	Route::get('/posts/create', 'PostsController@create');
+	Route::get('/posts/{post}', 'PostsController@show');
+	Route::post('/posts/{post}/comments', 'CommentsController@store');
+	Route::post('/posts', 'PostsController@store');
+});
+```
+
 And example of a pivot table (relationships between multiple tables)
